@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Scholarship {
+  id                     String    @id @default(uuid())
+  slug                   String    @unique
+  name                   String
+  provider               String
+  country                String
+  flag                   String
+  level                  String[]
+  field                  String[]
+  funding                String    // 'full' | 'partial'
+  amount                 String
+  duration               String?
+  deadline               DateTime
+  start_date             String?
+  eligible_nationalities String[]
+  eligible_countries     String[]
+  is_asean_friendly      Boolean   @default(false)
+  description            String
+  short_description      String?
+  benefits               Json      @default("[]")
+  requirements           Json      @default("[]")
+  documents_required     Json      @default("[]")
+  how_to_apply           Json      @default("[]")
+  official_link          String
+  source_url             String?
+  thumbnail              String?
+  logo                   String?
+  tags                   String[]  @default([])
+  is_featured            Boolean   @default(false)
+  view_count             Int       @default(0)
+  status                 String    @default("PUBLISHED") // 'DRAFT' | 'PUBLISHED' | 'EXPIRED'
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
+
+  @@index([country])
+  @@index([funding])
+  @@index([is_asean_friendly])
+  @@index([is_featured])
+  @@index([deadline])
+  @@index([status])
+}
+
+model Submission {
+  id              String   @id @default(uuid())
+  name            String
+  provider        String
+  country         String
+  level           String[]
+  field           String[]
+  funding         String   // 'full' | 'partial'
+  amount          String?
+  deadline        DateTime
+  official_link   String
+  description     String?
+  submitter_email String
+  status          String   @default("PENDING") // 'PENDING' | 'APPROVED' | 'REJECTED'
+  review_notes    String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@index([status])
+  @@index([submitter_email])
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String @unique
+  icon  String
+  count Int    @default(0)
+}
+
+model ScraperLog {
+  id             String   @id @default(uuid())
+  source         String
+  status         String   // 'SUCCESS' | 'FAILED' | 'RUNNING'
+  items_found    Int      @default(0)
+  items_ingested Int      @default(0)
+  error_message  String?
+  duration_ms    Int?
+  created_at     DateTime @default(now())
+
+  @@index([status])
+  @@index([created_at])
+}
+
+model AdminUser {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password_hash String
+  name          String?
+  role          String   @default("ADMIN")
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
